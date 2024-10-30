@@ -1,0 +1,213 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+use Magento\Catalog\Model\Product;
+use Magento\Swatches\Block\Product\Renderer\Listing\Configurable;
+use Magento\Swatches\ViewModel\Product\Renderer\Configurable as ConfigurableViewModel;
+
+/** @var Configurable $block */
+/** @var Product $product */
+$product = $block->getProduct()
+?>
+<?php if ($product && $product->isAvailable()): ?>
+    <?php $productId = $product->getId() ?>
+    <?php /** @var ConfigurableViewModel $configurableViewModel */ ?>
+    <?php $configurableViewModel = $block->getConfigurableViewModel();
+	  $jsonSwatchConfig = $block->getJsonSwatchConfig();
+	  $jsonConfig = $block->getJsonConfig();
+	  $products = $block->getAllowProducts();
+	  $aditionalSwatchImages = [];
+	  
+	  foreach ($products as $product) {
+		//ToDo: use smaller image 
+		$aditionalSwatchImages[$product->getId()] = '/media/catalog/product/' . $product->getData('small_image');
+	  }
+	  //var_dump($aditionalSwatchImages);
+    ?>
+
+    <div class="swatch-opt-<?= $block->escapeHtmlAttr($productId) ?> swatch-options"
+         data-role="swatch-option-<?= $block->escapeHtmlAttr($productId) ?>">
+
+	<?php if(false) { ?>
+    <script type="text/x-magento-init">
+        {
+            "[data-role=swatch-option-<?= $block->escapeJs($productId) ?>]": {
+                "Magento_Swatches/js/swatch-renderer": {
+                    "selectorProduct": ".product-item-details",
+                    "onlySwatches": true,
+                    "enableControlLabel": false,
+                    "numberToShow": <?= $block->escapeJs($block->getNumberSwatchesPerProduct()) ?>,
+                    "jsonConfig": <?= $jsonConfig ?>,
+                    "jsonSwatchConfig": <?= $jsonSwatchConfig ?>,
+                    "mediaCallback": "<?= $block->escapeJs($block->escapeUrl($block->getMediaCallback())) ?>",
+                    "jsonSwatchImageSizeConfig": <?= /* @noEscape */ $block->getJsonSwatchSizeConfig() ?>,
+                    "showTooltip": <?= $block->escapeJs($configurableViewModel->getShowSwatchTooltip()) ?>
+                }
+            }
+        }
+    </script>
+	<?php } ?>
+
+	<script> 
+	{
+		const swatchesJson = {
+			"jsonConfig": <?= $jsonConfig ?>,
+			"jsonSwatchConfig": <?= $jsonSwatchConfig ?>
+		}
+	}
+	</script>
+	<?php
+		$jsonConfig = json_decode($jsonConfig, true);
+		$jsonSwatchConfig = json_decode($jsonSwatchConfig, true);
+
+		//var_dump($jsonConfig); die();
+		//echo "=======";
+		//$index = $jsonConfig['index'];
+	?>
+
+<?php foreach($jsonConfig['attributes'] as $attribute) { 
+//	var_dump($attribute); die();
+	if($attribute['code'] === 'size') {
+?>
+    <div class="swatch-attribute <?= $attribute['code'] ?>" attribute-code="size" data-attribute-id="<?= $attribute['id'] ?>">
+	<div class="swatch-attribute-options clearfix">
+		<?php foreach($attribute['options'] as $option) { ?>
+		<div class="swatch-option text"  
+			data-opt-id="<?= $option['id'] ?>" 
+			data-opt-label="<?= $option['label'] ?>" 
+			aria-label="<?= $option['label'] ?>" 
+			data-product="<?= $option['products'][0] ?>"
+			role="option"
+			id="swatch-<?=$option['id']?>"
+			data-thumb-width="110" data-thumb-height="90" 
+			data-option-tooltip-value="<?= $option['label'] ?>"> <?= $option['label'] ?> </div>
+
+		<?php } ?>
+	</div> 
+   </div>
+  
+<?php
+     	}    
+     	if($attribute['code'] === 'color') {
+?>
+     <div class="swatch-attribute <?= $attribute['code'] ?>" attribute-code="color" data-attribute-id="<?= $attribute['id'] ?>">
+	<div class="swatch-attribute-options clearfix">
+		<?php foreach($attribute['options'] as $option) {
+		$color = "#000000";
+
+		$colorOptions = [
+			'White' => '#ffffff',
+			'Yellow' => '#ffd500',
+			'Purple' => '#ef3dff',
+			'Green' => '#53a828',
+			'Gray' => '#8f8f8f',
+			'Orange' => '#eb6703',
+			'Brown' => '#945454',
+			'Red' => '#ff0000',
+			'Blue' => '#1857f7'
+		];
+
+		if(isset($jsonSwatchConfig[$attribute['id']][$option['id']])){
+			$color = $jsonSwatchConfig[$attribute['id']][$option['id']]['value'];
+		} else if (isset($colorOptions[$option['label']])){
+			$color = $colorOptions[$option['label']];
+		}
+		//var_dump($color);
+		?>
+			<div class="swatch-option <?= $attribute['code'] ?>" id="undefined-item-opt-<?=$option['id']?>" index="0" 
+                     	     aria-checked="false" 
+			     aria-describedby="undefined" 
+			     tabindex="0" 
+			     data-opt-type="1" 
+			     data-opt-id="<?= $option['id'] ?>" 
+			     data-opt-label="<?= $option['label'] ?>" 
+			     aria-label="<?= $option['label'] ?>" role="option" 
+				 data-parent="<?= $productId ?>"
+				 <?php $productImage = $option['products'][0]; ?>
+				 data-product="<?=  $productImage  ?>"
+				 <?php //var_dump( $option); 
+				 $dataImage = null;
+				 if (isset($jsonConfig['images'][$productImage])){
+				 	$dataImage = $jsonConfig['images'][$productImage][0]['img'];
+				 } else if (isset($aditionalSwatchImages[$productImage])){
+					$dataImage = $aditionalSwatchImages[$productImage];
+				 }
+				 if (isset($dataImage)){
+					if(class_exists('Mage')){
+						$imageDesktop = \Mage::imageResizeUrl($dataImage, 700, 700, 'p', 85); 
+						$imageMobile = \Mage::imageResizeUrl($dataImage, 350, 350, 'p', 85);
+					} else {
+						$imageDesktop = $dataImage;
+						$imageMobile = $dataImage;
+					}
+				 ?>
+				 data-image="<?= $imageDesktop ?>"
+				 data-image-mobile="<?= $imageMobile ?>"
+				 <?php  } ?>
+			     data-thumb-width="110" 
+			     data-thumb-height="90" 
+			     data-opt-tooltip-value="<?= $color ?>" 
+			     style="background: <?= $color ?>  no-repeat center; background-size: initial;"></div>
+        	<?php }?>
+        </div>
+    </div>
+</div>
+<?php
+ }
+
+}?>
+    <script>
+    if (typeof swatchSelect === 'undefined') {
+	function swatchSelect(e){
+		//console.log(e);
+		const selected = e.target.parentNode.querySelector('.selected');
+		if(selected !== null) {
+			selected.classList.remove('selected');
+		}
+		e.target.classList.add('selected');
+
+		<?php //ToDo: Make real price changer ?>
+		if (document.querySelector('.swatch-option.text.selected') && document.querySelector('.swatch-option.color.selected')){
+			document.querySelector('.price-label').style.display = "none";
+		}
+		const image = 	e.target.getAttribute('data-image');
+		const parentID = e.target.getAttribute('data-parent');
+		console.log(parentID);
+		if (image) { 
+		const selectorImgP = ".gallery-placeholder._block-content-loading .gallery-placeholder__image";
+		const selectorImgProdResponsive = ".gallery-placeholder._block-content-loading source";
+		const selectorImgC = '#product-item-info_' + parentID + ' img.product-image-photo';
+		console.log(selectorImgC);
+		const imgProductPageP = document.querySelector(selectorImgP);
+		const imgProductPageC = document.querySelector(selectorImgC);
+		console.log(imgProductPageC);
+		if(imgProductPageP){
+			const imgProductPageProductSource = document.querySelectorAll(selectorImgProdResponsive);
+			imgProductPageProductSource.forEach((source) => source.srcset = image);
+
+			imgProductPageP.src = image;
+		}
+		if(imgProductPageC){
+			imgProductPageC.src = image;
+		}
+	}
+   }
+	}
+   document.querySelectorAll('.swatch-opt-<?= $block->escapeHtmlAttr($productId)?> .swatch-option').forEach(e => e.addEventListener('click', (e) => {swatchSelect(e)}));
+   </script>
+    <script type="text/x-magento-init">
+        {
+            "[data-role=priceBox][data-price-box=product-id-<?= $block->escapeJs($productId) ?>]": {
+                "priceBox": {
+                    "priceConfig": {
+                        "priceFormat": <?= /* @noEscape */ $block->getPriceFormatJson() ?>,
+                        "prices": <?= /* @noEscape */ $block->getPricesJson() ?>
+                    }
+                }
+            }
+        }
+    </script>
+<?php endif; ?>

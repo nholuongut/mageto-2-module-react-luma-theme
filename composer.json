@@ -1,0 +1,16 @@
+{
+    "name": "reactluma/module-theme",
+    "description": "Theme fixes for The React Luma Magento Theme",
+    "type": "magento2-module",
+    "license": "GPL-3.0",
+    "minimum-stability": "stable",
+    "require": {},
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "ReactLuma\\Theme\\": ""
+        }
+    }
+}

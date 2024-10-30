@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page layout="1column" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="breadcrumbs" template="ReactLuma_Theme::product/breadcrumbs.phtml">
+            <arguments>
+                <argument name="viewModel" xsi:type="object">ReactLuma\Theme\ViewModel\Product\Breadcrumbs</argument>
+            </arguments>
+        </referenceBlock>
+    </body>
+</page>

@@ -1,0 +1,10 @@
+<config>
+    <preference for="Magento\Catalog\ViewModel\Product\Breadcrumbs" type="ReactLuma\Theme\ViewModel\Product\Breadcrumbs" />
+    <preference for="Magento\Checkout\CustomerData\Cart" type="ReactLuma\Theme\CustomerData\Cart" />
+    <preference for="Magento\Theme\Block\Html\Topmenu" type="ReactLuma\Theme\Block\Html\Topmenu" />
+    <preference for="Magento\Framework\Data\Form\FormKey\Validator" type="ReactLuma\Theme\Fix\Validator" />
+    <preference for="Magento\Swatches\Block\Product\Renderer\Configurable" type="ReactLuma\Theme\Block\Product\Renderer\Configurable" />    
+    <type name="ReactLuma\Theme\Block\Html\Topmenu">
+        <plugin name="catalogTopmenu" type="Magento\Catalog\Plugin\Block\Topmenu" />
+    </type>
+</config>
